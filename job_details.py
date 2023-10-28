@@ -23,6 +23,7 @@ driver = webdriver.Firefox(options=options)
 def load_listing_details_page(url):
     try:
         driver.get(url)
+        
 
         # wait until the 'about client' section is visible. Page should be loaded by then.
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located((By.XPATH, "//div[@class='cfe-about-client-v2 air3-card-section py-4x']" )))
@@ -49,20 +50,7 @@ def load_listing_details_page(url):
         
         # get job features
         job_features = WebDriverWait(driver,10).until(EC.presence_of_all_elements_located((By.XPATH, "//ul[@class='features list-unstyled m-0']/li")))
-        # for job_feature in job_features:
-        #     feature = job_feature.find_element(By.TAG_NAME, "strong")
-        #     description = job_feature.find_element(By.CLASS_NAME,"description")
-
-        #     if feature:
-        #         feature_text = feature.text
-        #         print(feature_text)
-        #     # if description:
-        #     #     description_text = description.text
-
-        #     # print(f"{description_text}:{feature_text}")
-
         feature_texts = [job_feature.text for job_feature in job_features]
-        print(feature_texts)
         for item in feature_texts:
             if "\n" in item:
                 try:
@@ -79,7 +67,16 @@ def load_listing_details_page(url):
 
             print(f"{desc}: {fet}")
 
+        # skills and ecpertise
+        job_skills = WebDriverWait(driver,10).until(EC.presence_of_all_elements_located((By.XPATH, "//div[@class='skills-list mt-3']/span")))
+        job_skills_list = [job_skill.text for job_skill in job_skills]
 
+        more_skills_button = WebDriverWait(driver,20).until(EC.visibility_of_element_located((By.XPATH, "//span[@data-test='UpCPopover']/span/div")))
+        print(driver.page_source)
+        
+            
+        print(job_skills_list)
+        
 
            
 
@@ -90,5 +87,5 @@ url1='https://www.upwork.com/freelance-jobs/apply/Designer-for-Metfi-DAO_~012c2c
 url2='https://www.upwork.com/freelance-jobs/apply/Chatting-pondre-aux-abonn-une-influenceuse-pour-vendre-des-dias-priv_~0165ed686bba96502e/'
 url3='https://www.upwork.com/freelance-jobs/apply/Google-document-into-word_~01bce6958ccd63a9f1/'
 url4='https://www.upwork.com/freelance-jobs/apply/Content-Creator-STEM_~014ce1766f6b16ebe1/'
-load_listing_details_page(url4)
+load_listing_details_page("https://www.upwork.com/freelance-jobs/apply/Industrial-Printer-Nozzle-Control-Board_~0196aeeb8df1b68826/")
 driver.quit()
