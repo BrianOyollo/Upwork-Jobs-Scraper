@@ -18,7 +18,7 @@ import os
 # ]
 
 options=Options()
-options.add_argument('--incognito')
+options.add_argument('--headless')
 driver = webdriver.Firefox(options=options)
 
 scraping_date = f'{datetime.today().strftime("%Y-%m-%d")}'
@@ -161,10 +161,16 @@ def save_days_urls(updated_urls_list):
             file.write(f"{url}\n")
 
 
+# def save_for_further_scraping(urls):
+#     with open(url_path, 'w') as file:
+#         for url in updated_urls_list:
+#             file.write(f"{url}\n")
+
+
 days_setup()
 read_existing_urls()
 page_count = 1
-while page_count <=20:
+while page_count <=2:
     url=f"https://www.upwork.com/nx/jobs/search/?sort=recency&page={page_count}&per_page=50"
     load_page(url, page_count)
     time.sleep(10)
