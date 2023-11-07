@@ -19,7 +19,7 @@ import os
 # ]
 
 options=Options()
-options.add_argument('--headless')
+# options.add_argument('--headless')
 driver = webdriver.Firefox(options=options)
 
 scraping_date = f'{datetime.today().strftime("%Y-%m-%d")}'
@@ -132,8 +132,8 @@ def load_listing_details_page(urls):
                 skills_list = []
                 for button in more_expertise_button:   
                     driver.execute_script("arguments[0].click();", button)
-                    time.sleep(5)
-                    skills = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.XPATH, "//span[@data-test='Skill']")))
+                    time.sleep(10)
+                    skills = WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located((By.XPATH, "//span[@data-test='Skill']")))
                     for skill in skills:
                         skills_list.append(skill.text.strip())
 
