@@ -29,6 +29,7 @@ jobs_file_path= f"{scraping_date}/jobs.json"
 
 
 def read_urls_file(file_path):
+    print(f'Reading urls at {file_path}')
     try:
         with open(file_path, 'r') as file:
             urls = file.readlines()
@@ -38,6 +39,7 @@ def read_urls_file(file_path):
         print(f"{e}. Confirm the file exists then try again!")
 
 def write_to_urls_file(urls, file_path):
+    print(f'Writing urls at {file_path}')
     if urls:
         try:
             with open(file_path, 'w') as file:
@@ -56,13 +58,14 @@ def setup(scraped_urls_file, jobs_file_path):
         print('Scraped urls file located.')
     
     if not os.path.exists(jobs_file_path):
-        print('Creating file for jobs...')
+        print('Creating JSON file for jobs...')
         with open(jobs_file_path, 'w') as file:
-            file.write('')
+            json.dump([], file, indent=3)
     else:
         print('Jobs file located!')
 
 def compare_urls(unscraped_urls, scraped_urls):
+    print(f"cross checking urls at {unscraped_urls} and {scraped_urls}")
     unscraped_urls_list = read_urls_file(unscraped_urls)
     scrapped_urls_list = read_urls_file(scraped_urls) 
     urls_to_scrape = [url for url in unscraped_urls_list if url not in scrapped_urls_list]
@@ -70,6 +73,7 @@ def compare_urls(unscraped_urls, scraped_urls):
 
 
 def update_scraped_urls_file(scraped_urls_path, new_urls):
+    print(f'Updating urls file at {scraped_urls_path}')
     existing_urls = read_urls_file(scraped_urls_path)
     updated_urls_list = new_urls + existing_urls
     write_to_urls_file(updated_urls_list, scraped_urls_path)
@@ -79,7 +83,8 @@ def load_listing_details_page(urls):
     if urls:
         jobs_list = []
         scraped_urls = []
-        for url in urls:
+        for url in urls[:6]:
+            print(f"scraping {url}...")
             job_details = {}
             try:
                 driver.get(url)
@@ -128,7 +133,7 @@ def load_listing_details_page(urls):
                 for button in more_expertise_button:   
                     driver.execute_script("arguments[0].click();", button)
                     time.sleep(5)
-                    skills = WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.XPATH, "//span[@data-test='Skill']")))
+                    skills = WebDriverWait(driver, 20).until(EC.presence_of_all_elements_located((By.XPATH, "//span[@data-test='Skill']")))
                     for skill in skills:
                         skills_list.append(skill.text.strip())
 
@@ -152,7 +157,9 @@ def load_listing_details_page(urls):
         return []
 
 def save_jobs(jobs_list, jobs_file_path):
+    print(f'Saving scraped jobs at {jobs_file_path}')
     if jobs_list:
+        # print(jobs_list)
         with open(jobs_file_path, 'r') as input_file:
             existing_jobs = json.load(input_file)
 
@@ -168,4 +175,3 @@ jobs_list = load_listing_details_page(urls_to_scrape)
 save_jobs(jobs_list, jobs_file_path)
 
 driver.quit()
-
