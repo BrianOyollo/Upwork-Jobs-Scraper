@@ -29,22 +29,24 @@ jobs_file_path= f"{scraping_date}/jobs.json"
 
 
 def read_urls_file(file_path):
-    print(f'Reading urls at {file_path}')
+    print(f'Reading urls at {file_path}....', end='', flush=True)
     try:
         with open(file_path, 'r') as file:
             urls = file.readlines()
         stripped_urls = [url.strip() for url in urls]
+        print(f'\rReading urls at {file_path}....done!')
         return stripped_urls
     except Exception as e:
         print(f"{e}. Confirm the file exists then try again!")
 
 def write_to_urls_file(urls, file_path):
-    print(f'Writing urls at {file_path}')
+    print(f'Writing urls at {file_path}...', end='', flush=True)
     if urls:
         try:
             with open(file_path, 'w') as file:
                 for url in urls:
                     file.write(f"{url}\n")
+            print(f'\rWritng urls at {file_path}....done!')
         except Exception as e:
             print(f"{e}. Confirm the file exists then try again!")
 
