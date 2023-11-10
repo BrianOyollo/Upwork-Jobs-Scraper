@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -19,7 +20,9 @@ import os
 
 options=Options()
 options.add_argument('--headless')
-driver = webdriver.Firefox(options=options)
+geckodriver_path = "/snap/bin/geckodriver" 
+driver_service = Service(executable_path=geckodriver_path)
+driver = webdriver.Firefox(options=options, service=driver_service)
 
 scraping_date = f'{datetime.today().strftime("%Y-%m-%d")}'
 url_path = f"{scraping_date}/urls.txt"

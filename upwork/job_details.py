@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
@@ -7,7 +8,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 from bs4 import BeautifulSoup
 import time
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 
@@ -20,7 +21,9 @@ import os
 
 options=Options()
 # options.add_argument('--headless')
-driver = webdriver.Firefox(options=options)
+geckodriver_path = "/snap/bin/geckodriver" 
+driver_service = Service(executable_path=geckodriver_path)
+driver = webdriver.Firefox(options=options, service=driver_service)
 
 scraping_date = f'{datetime.today().strftime("%Y-%m-%d")}'
 unscraped_urls_path = f"{scraping_date}/urls.txt"
@@ -86,9 +89,10 @@ def load_listing_details_page(urls):
         jobs_list = []
         scraped_urls = []
         for url in urls[:6]:
-            print(f"scraping {url}...")
+            print(f"scraping {url}...", end='', flush=True)
             job_details = {}
             try:
+                current_time = datetime.now()
                 driver.get(url)
                 job_details['url']=url
                 time.sleep(20)
@@ -141,12 +145,33 @@ def load_listing_details_page(urls):
 
                 filtered_skills_list = list({item for item in skills_list if item})
                 job_details['expertise'] = filtered_skills_list
-                job_details['scraping_date'] = scraping_date
+
+                 # time_posted
+                posted_on = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "//div[@data-test='PostedOn']/span"))).text.strip()
+                def get_time_posted(posted_on):
+                    time_units = {
+                        'second':1,
+                        'seconds':1,
+                        'minute':60,
+                        'minutes':60,
+                        'hour':3600,
+                        'hours':3600
+                    }
+
+                    value, unit, x = posted_on.split(' ')
+                    time_difference_econds = int(value)*time_units[unit]
+                    posted_time = current_time - timedelta(seconds=time_difference_econds)
+                    return posted_time.strftime('%Y-%m-%d %H:%M:%S')
+                
+                job_details['posted_on']=get_time_posted(posted_on)
+                job_details['scraping_date'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 # add job to jobs list
                 # save url to scraped_urls list
                 jobs_list.append(job_details)
                 scraped_urls.append(url)
+                print(f"\rscraping {url}...done!")
+            
 
             except Exception as e:
                 print(e)
